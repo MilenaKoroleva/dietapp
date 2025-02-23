@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Diet App</string>
+    <string name="meal_image">Meal Image</string>
+    <string name="enter_allergies">Введите продукты, на которые у вас аллергия (через запятую):</string>
+    <string name="enter_budget">Введите ваш бюджет на неделю (в рублях):</string>
+    <string name="save">Сохранить</string>
+    <string name="back">Назад</string>
+</resources>
