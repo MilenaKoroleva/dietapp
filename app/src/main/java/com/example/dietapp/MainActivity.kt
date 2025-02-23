@@ -98,12 +98,15 @@ class MainActivity : AppCompatActivity() {
         return try {
             val inputStream: InputStream = assets.open("recipes.json")
             val jsonString = inputStream.bufferedReader().use { it.readText() }
+            println("JSON content: $jsonString") // Лог для проверки
             val jsonArray = JSONArray(jsonString)
             val meals = mutableListOf<MealEntity>()
 
-            for (i in 0 until jsonArray.length()) {val jsonObject = jsonArray.getJSONObject(i)
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
                 meals.add(jsonObject(jsonObject))
             }
+            println("Loaded ${meals.size} meals") // Лог для проверки
             meals
         } catch (e: Exception) {
             e.printStackTrace()
@@ -147,7 +150,12 @@ class MainActivity : AppCompatActivity() {
             for (i in 0 until ingredients.length()) {
                 val ingredient = ingredients.getJSONObject(i)
                 val name = ingredient.getString("name").lowercase()
-                mealCost += ingredient.getInt("cost")
+                val cost = when (val costValue = ingredient.get("cost")) {
+                    is Int -> costValue
+                    is String -> costValue.toIntOrNull() ?: 0
+                    else -> 0
+                }
+                mealCost += cost
                 if (allergies.contains(name)) {
                     hasAllergy = true
                     break
@@ -178,7 +186,7 @@ class MainActivity : AppCompatActivity() {
                     !hasAllergy && totalCost + cost <= budget && affordableMeals.none { it.day == day }
                 }?.let {
                     affordableMeals.add(it.copy(day = day))
-                    totalCost += JSONArray(it.ingredients).sumOf { it.getJSONObject("cost").getInt("cost") }
+                    totalCost += JSONArray(it.ingredients).sumOf { it.getInt("cost") }
                 }
             }
         }
@@ -207,9 +215,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         val listText = shoppingList.entries.joinToString("\n") { (name, pair) ->
-            "$name: ${pair.first} ${pair.second} (примерная стоимость: ${pair.first * meals.first {
-                JSONArray(it.ingredients).getJSONObject(0).getString("name") == name
-            }.let { JSONArray(it.ingredients).getJSONObject(0).getInt("cost") }} руб)"
+            // Ищем стоимость среди всех ингредиентов всех блюд
+            val costPerUnit = meals.firstOrNull { meal ->
+                val ingredients = JSONArray(meal.ingredients)
+                (0 until ingredients.length()).any { i ->
+                    ingredients.getJSONObject(i).getString("name") == name
+                }
+            }?.let { meal ->
+                val ingredients = JSONArray(meal.ingredients)
+                (0 until ingredients.length()).map { i ->
+                    ingredients.getJSONObject(i)
+                }.first { it.getString("name") == name }.getInt("cost")
+            } ?: 0 // Если не нашли, стоимость = 0
+
+            "$name: ${pair.first} ${pair.second} (примерная стоимость: ${pair.first * costPerUnit} руб)"
         }
         prefs.edit().putString("shoppingList", listText).apply()
     }
