@@ -1,7 +1,6 @@
 
 package com.example.dietapp
 
-
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
@@ -104,20 +103,22 @@ class MainActivity : AppCompatActivity() {
                 val ingredient = ingredientsArray.getJSONObject(j)
                 ingredients.add(
                     Ingredient(
-                            name = ingredient.getString("name"),
-                    amount = ingredient.getString("amount"),
-                    cost = ingredient.getInt("cost")
-                )
+                        name = ingredient.getString("name"),
+                        amount = ingredient.getString("amount"),
+                        cost = ingredient.getInt("cost")
+                    )
                 )
             }
+            val imageName = jsonObject.getString("image")
+            val imageResId = resources.getIdentifier(imageName, "drawable", packageName)
             meals.add(
                 Meal(
                     name = jsonObject.getString("name"),
                     calories = jsonObject.getInt("calories"),
-                    imageUrl = jsonObject.getString("imageUrl"),
+                    imageResId = imageResId,
                     recipe = jsonObject.getString("recipe"),
                     category = jsonObject.getString("category"),
-                    day = "", // День будет назначен в optimizeMeals
+                    day = "",
                     ingredients = ingredients
                 )
             )
@@ -132,7 +133,7 @@ class MainActivity : AppCompatActivity() {
         val allergies = prefs.getString("allergies", "")?.split(",")?.map { it.trim().lowercase() } ?: emptyList()
         val disliked = prefs.getString("disliked", "")?.split(",")?.map { it.trim().lowercase() } ?: emptyList()
         val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-        val mealTypes = listOf("Breakfast", "Lunch", "Dinner") // Три типа блюд на день
+        val mealTypes = listOf("Breakfast", "Lunch", "Dinner")
         val categories = listOf("Vegetarian", "Keto", "Low Carb", "Vegan")
 
         val validMeals = meals.filter { meal ->
@@ -146,7 +147,7 @@ class MainActivity : AppCompatActivity() {
 
         days.forEach { day ->
             mealTypes.forEachIndexed { index, type ->
-                val maxCalories = prefs.getInt("calories_$day", 2000) / 3 // Делим дневные калории на 3
+                val maxCalories = prefs.getInt("calories_$day", 2000) / 3
                 val category = categories[(index + days.indexOf(day)) % categories.size]
                 val meal = validMeals
                     .filter { it.category == category && it !in selectedMeals }
@@ -159,7 +160,7 @@ class MainActivity : AppCompatActivity() {
                         totalCost + mealCost <= budget && meal.calories <= maxCalories
                     }
                 if (meal != null) {
-                    selectedMeals.add(meal.copy(day = "$day - $type")) // Добавляем тип к дню
+                    selectedMeals.add(meal.copy(day = "$day - $type"))
                     totalCost += meal.ingredients.sumOf { it.cost }
                 }
             }
@@ -187,9 +188,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateMeals() {
-        val dayMeals = weeklyMenu.filter { it.day.startsWith(selectedDay) } // Фильтруем по дню
+        val dayMeals = weeklyMenu.filter { it.day.startsWith(selectedDay) }
         adapter.updateMeals(dayMeals)
         val totalCalories = dayMeals.sumOf { it.calories }
-        binding.totalCalories.text = "Калорий за день: $totalCalories ккал"
+        binding.totalCalories.
+        text = "Калорий за день: $totalCalories ккал"
     }
 }

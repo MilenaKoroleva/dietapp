@@ -32,7 +32,7 @@ class MealAdapter(
             binding.mealName.text = meal.name
             binding.mealCalories.text = "${meal.calories} ккал"
             binding.mealCategory.text = meal.category
-            Glide.with(binding.root.context).load(meal.imageUrl).into(binding.mealImage)
+            Glide.with(binding.root.context).load(meal.imageResId).into(binding.mealImage)
             binding.root.setOnClickListener { onItemClick(meal) }
         }
     }
