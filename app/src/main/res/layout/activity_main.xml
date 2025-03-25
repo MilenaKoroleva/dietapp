@@ -1,48 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/gradient_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="scrollable"/>
+            app:tabTextColor="@color/purple_700"
+        app:tabSelectedTextColor="@color/purple_700"
+        app:tabIndicatorColor="@color/white"
+        app:tabTextAppearance="@style/TabTextStyle"
+        android:background="@android:color/transparent"/>
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/diet_category_tabs"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="scrollable"/>
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
 
-        <TextView
-            android:id="@+id/total_calories"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Всего калорий: 0 ккал"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/prev_menu_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Предыдущее меню"
+                android:textColor="@color/white"
+                app:cornerRadius="12dp"
+                android:backgroundTint="@color/teal_700"
+                app:rippleColor="@color/teal_200"
+                android:layout_marginEnd="8dp"/>
 
-        <Button
-            android:id="@+id/back_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/back"
-            android:layout_gravity="center"/>
-
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/next_menu_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Следующее меню"
+                android:textColor="@color/white"
+                app:cornerRadius="12dp"
+                android:backgroundTint="@color/teal_700"
+                app:rippleColor="@color/teal_200"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/meal_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <TextView
+        android:id="@+id/total_calories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:padding="16dp"/>
+</LinearLayout>
