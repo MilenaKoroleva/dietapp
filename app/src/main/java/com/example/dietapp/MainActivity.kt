@@ -1,4 +1,3 @@
-
 package com.example.dietapp
 
 import android.content.Intent
@@ -69,9 +68,9 @@ class MainActivity : AppCompatActivity() {
             showMenuConfirmationDialog()
         }
         binding.prevMenuButton.setOnClickListener {
-            currentMenuIndex = (currentMenuIndex - 1 + weeklyMenus.size) % weeklyMenus.size
-            weeklyMenu = weeklyMenus[currentMenuIndex].toMutableList()
-            showMenuConfirmationDialog()
+            // Переход на SetupActivity
+            startActivity(Intent(this, SetupActivity::class.java))
+            // finish() // Раскомментируй, если хочешь закрыть MainActivity после перехода
         }
     }
 
@@ -191,7 +190,6 @@ class MainActivity : AppCompatActivity() {
         val dayMeals = weeklyMenu.filter { it.day.startsWith(selectedDay) }
         adapter.updateMeals(dayMeals)
         val totalCalories = dayMeals.sumOf { it.calories }
-        binding.totalCalories.
-        text = "Калорий за день: $totalCalories ккал"
+        binding.totalCalories.text = "Калорий за день: $totalCalories ккал"
     }
 }

@@ -8,7 +8,7 @@ import com.example.dietapp.databinding.MealItemBinding
 
 class MealAdapter(
     private var meals: List<Meal>,
-    private val onItemClick: (Meal) -> Unit
+    private val onItemClick: (Meal) -> Unit // Обработчик клика
 ) : RecyclerView.Adapter<MealAdapter.MealViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MealViewHolder {
@@ -32,8 +32,10 @@ class MealAdapter(
             binding.mealName.text = meal.name
             binding.mealCalories.text = "${meal.calories} ккал"
             binding.mealCategory.text = meal.category
-            Glide.with(binding.root.context).load(meal.imageResId).into(binding.mealImage)
-            binding.root.setOnClickListener { onItemClick(meal) }
+            Glide.with(binding.root.context)
+                .load(meal.imageResId)
+                .into(binding.mealImage)
+            binding.root.setOnClickListener { onItemClick(meal) } // Вызываем обработчик при клике
         }
     }
 }
