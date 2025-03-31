@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         binding.mealList.layoutManager = LinearLayoutManager(this)
         adapter = MealAdapter(emptyList()) { meal ->
-            showReplaceDialog(meal)
+            showRecipeDialog(meal)
         }
         binding.mealList.adapter = adapter
     }
@@ -68,9 +68,9 @@ class MainActivity : AppCompatActivity() {
             showMenuConfirmationDialog()
         }
         binding.prevMenuButton.setOnClickListener {
-            // Переход на SetupActivity
-            startActivity(Intent(this, SetupActivity::class.java))
-            // finish() // Раскомментируй, если хочешь закрыть MainActivity после перехода
+            android.util.Log.d("MainActivity", "Back button clicked - Moving to SetupActivity")
+            val intent = Intent(this, SetupActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -78,9 +78,7 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             val meals = loadMealsFromJson()
             weeklyMenus.clear()
-            repeat(3) { // Генерируем 3 варианта меню
-                weeklyMenus.add(optimizeMeals(meals))
-            }
+            repeat(3) { weeklyMenus.add(optimizeMeals(meals)) }
             currentMenuIndex = 0
             weeklyMenu = weeklyMenus[currentMenuIndex].toMutableList()
             withContext(Dispatchers.Main) {
@@ -164,7 +162,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
         return selectedMeals
     }
 
@@ -177,6 +174,14 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showRecipeDialog(meal: Meal) {
+        AlertDialog.Builder(this)
+            .setTitle("${meal.name} (${meal.day})")
+            .setMessage("Рецепт:\n${meal.recipe}\n\nИнгредиенты:\n${meal.ingredients.joinToString("\n") { "${it.name}: ${it.amount}" }}")
+            .setPositiveButton("ОК") { _, _ -> }
+            .setNegativeButton("Заменить") { _, _ -> showReplaceDialog(meal) }
+            .show()
+    }
     private fun showReplaceDialog(meal: Meal) {
         val alternatives = loadMealsFromJson().filter { it.category == meal.category && it !in weeklyMenu }
         if (alternatives.isNotEmpty()) {
