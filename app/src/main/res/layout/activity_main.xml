@@ -16,10 +16,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabTextColor="@color/white"
-        app:tabSelectedTextColor="@color/teal_200"
-        app:tabIndicatorColor="@color/teal_200"
-        app:tabTextAppearance="@style/TabTextStyle"
-        android:background="@android:color/transparent"/>
+            app:tabSelectedTextColor="@color/teal_200"
+            app:tabIndicatorColor="@color/teal_200"
+            app:tabTextAppearance="@style/TabTextStyle"
+            android:background="@android:color/transparent"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -33,14 +33,13 @@
                 android:id="@+id/prev_menu_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Назад"
+                android:text="Предыдущее меню"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 app:cornerRadius="12dp"
                 android:backgroundTint="@color/teal_700"
                 app:rippleColor="@color/teal_200"
-                android:layout_marginEnd="8dp"
-                android:visibility="visible"/>
+                android:layout_marginEnd="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/next_menu_button"
@@ -69,4 +68,17 @@
         android:textSize="16sp"
         android:textColor="@color/white"
         android:padding="16dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/back_to_setup_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Назад к настройкам"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:cornerRadius="12dp"
+        android:backgroundTint="@color/teal_700"
+        app:rippleColor="@color/teal_200"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"/>
 </LinearLayout>

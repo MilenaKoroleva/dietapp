@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupTabLayout()
         setupMenuSwitcher()
+        setupBackToSetupButton()
         loadMeals()
     }
 
@@ -68,7 +69,15 @@ class MainActivity : AppCompatActivity() {
             showMenuConfirmationDialog()
         }
         binding.prevMenuButton.setOnClickListener {
-            android.util.Log.d("MainActivity", "Back button clicked - Moving to SetupActivity")
+            currentMenuIndex = (currentMenuIndex - 1 + weeklyMenus.size) % weeklyMenus.size
+            weeklyMenu = weeklyMenus[currentMenuIndex].toMutableList()
+            showMenuConfirmationDialog()
+        }
+    }
+
+    private fun setupBackToSetupButton() {
+        binding.backToSetupButton.setOnClickListener {
+            android.util.Log.d("MainActivity", "Back to Setup button clicked - Moving to SetupActivity")
             val intent = Intent(this, SetupActivity::class.java)
             startActivity(intent)
         }
@@ -94,7 +103,8 @@ class MainActivity : AppCompatActivity() {
         val meals = mutableListOf<Meal>()
         for (i in 0 until jsonArray.length()) {
             val jsonObject = jsonArray.getJSONObject(i)
-            val ingredientsArray = jsonObject.getJSONArray("ingredients")
+            val ingredientsArray = jsonObject.
+            getJSONArray("ingredients")
             val ingredients = mutableListOf<Ingredient>()
             for (j in 0 until ingredientsArray.length()) {
                 val ingredient = ingredientsArray.getJSONObject(j)
@@ -125,17 +135,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun optimizeMeals(meals: List<Meal>): List<Meal> {
         val prefs = getSharedPreferences("DietPrefs", MODE_PRIVATE)
-        val budget = prefs.getInt("budget", 2000)
-        val favorites = prefs.getString("favorites", "")?.split(",")?.map { it.trim().lowercase() } ?: emptyList()
-        val allergies = prefs.getString("allergies", "")?.split(",")?.map { it.trim().lowercase() } ?: emptyList()
-        val disliked = prefs.getString("disliked", "")?.split(",")?.map { it.trim().lowercase() } ?: emptyList()
+        val dailyCalories = prefs.getInt("daily_calories", 2000)
+        val allergyNuts = prefs.getBoolean("allergy_nuts", false)
+        val allergyHoney = prefs.getBoolean("allergy_honey", false)
+        val allergyMilk = prefs.getBoolean("allergy_milk", false)
+        val allergyGluten = prefs.getBoolean("allergy_gluten", false)
         val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
         val mealTypes = listOf("Breakfast", "Lunch", "Dinner")
         val categories = listOf("Vegetarian", "Keto", "Low Carb", "Vegan")
 
         val validMeals = meals.filter { meal ->
             meal.ingredients.none { ingredient ->
-                allergies.contains(ingredient.name.lowercase()) || disliked.contains(ingredient.name.lowercase())
+                (allergyNuts && ingredient.name.lowercase() == "nuts") ||
+                        (allergyHoney && ingredient.name.lowercase() == "honey") ||
+                        (allergyMilk && ingredient.name.lowercase() == "milk") ||
+                        (allergyGluten && ingredient.name.lowercase() == "gluten")
             }
         }.shuffled()
 
@@ -144,17 +158,13 @@ class MainActivity : AppCompatActivity() {
 
         days.forEach { day ->
             mealTypes.forEachIndexed { index, type ->
-                val maxCalories = prefs.getInt("calories_$day", 2000) / 3
+                val maxCalories = dailyCalories / 3 // Делим дневные калории на 3 приёма пищи
                 val category = categories[(index + days.indexOf(day)) % categories.size]
                 val meal = validMeals
                     .filter { it.category == category && it !in selectedMeals }
-                    .sortedBy { meal ->
-                        val hasFavorite = meal.ingredients.any { favorites.contains(it.name.lowercase()) }
-                        if (hasFavorite) -1 else 1
-                    }
                     .firstOrNull { meal ->
-                        val mealCost = meal.ingredients.sumOf { ingredient -> ingredient.cost }
-                        totalCost + mealCost <= budget && meal.calories <= maxCalories
+                        val mealCost = meal.ingredients.sumOf { it.cost }
+                        totalCost + mealCost <= 2000 && meal.calories <= maxCalories // Бюджет фиксирован на 2000
                     }
                 if (meal != null) {
                     selectedMeals.add(meal.copy(day = "$day - $type"))
@@ -180,8 +190,10 @@ class MainActivity : AppCompatActivity() {
             .setMessage("Рецепт:\n${meal.recipe}\n\nИнгредиенты:\n${meal.ingredients.joinToString("\n") { "${it.name}: ${it.amount}" }}")
             .setPositiveButton("ОК") { _, _ -> }
             .setNegativeButton("Заменить") { _, _ -> showReplaceDialog(meal) }
-            .show()
+            .
+            show()
     }
+
     private fun showReplaceDialog(meal: Meal) {
         val alternatives = loadMealsFromJson().filter { it.category == meal.category && it !in weeklyMenu }
         if (alternatives.isNotEmpty()) {
